@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="executor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="10" />
+		<property name="maxPoolSize" value="100" />
+		<property name="queueCapacity" value="500" />
+	</bean>
+
+	<bean id="taskOne" class="com.zuidaima.tasklet.TaskOne" />
+
+	<bean id="taskOneJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="taskOne" />
+		<property name="targetMethod" value="execue" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="taskOneCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="taskOneJobDetail" />
+		<property name="cronExpression" value="0/1 * * * * ?" />
+	</bean>
+
+	<!-- //////////////////////// -->
+
+	<bean id="dailyTask" class="com.zuidaima.tasklet.DailyTask">
+		<property name="scheduler" ref="scheduler" />
+		<property name="taskOneCronTrigger" ref="taskOneCronTrigger" />
+		<property name="taskOneJobDetail" ref="taskOneJobDetail" />
+	</bean>
+
+	<bean id="dailyJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="dailyTask" />
+		<property name="targetMethod" value="execue" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="dailyCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="dailyJobDetail" />
+		<property name="cronExpression" value="0/15 * * * * ?" />
+	</bean>
+
+	<!-- //////////////////////// -->
+
+
+	<bean id="stopTaskOne" class="com.zuidaima.tasklet.StopTaskOne">
+		<property name="taskOneCronTrigger" ref="taskOneCronTrigger" />
+		<!-- <property name="scheduler" ref="scheduler" /> -->
+		<property name="taskOneJobDetail" ref="taskOneJobDetail" />
+	</bean>
+
+	<bean id="stopTaskOneJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="stopTaskOne" />
+		<property name="targetMethod" value="execue" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="stopTaskOneCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="stopTaskOneJobDetail" />
+		<property name="cronExpression" value="10,25,40,55 * * * * ?" />
+	</bean> <!-- -->
+
+	<bean id="scheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- <ref bean="taskOneCronTrigger" /> -->
+				<ref bean="dailyCronTrigger" />
+				<ref bean="stopTaskOneCronTrigger" />
+			</list>
+		</property>
+		<property name="taskExecutor" ref="executor" />
+	</bean>
+
+</beans>

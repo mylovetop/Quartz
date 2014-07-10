@@ -1,0 +1,21 @@
+package com.zuidaima.tasklet.test;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "/schedule/quartz.xml" })
+public class QuartzTaskOneTest {
+
+	@Test
+	public void simpleTest() throws Exception {
+
+		while (true) {
+			Assert.assertTrue(true);
+		}
+	}
+}
